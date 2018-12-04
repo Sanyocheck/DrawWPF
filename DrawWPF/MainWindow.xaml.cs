@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Diagnostics;
+using System.IO;
+using System.IO.MemoryMappedFiles;
+using System.IO.Pipes;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
@@ -6,6 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using System.Linq;
 
 namespace DrawWPF
 {
@@ -231,7 +236,17 @@ namespace DrawWPF
                     Add = 0;
                 }
 
-                if (x < 10)
+                double[] data = ReadMemory().Split('|').Select(double.Parse).ToArray();
+
+                x = data[0];
+
+                y = data[1];
+
+                vx = data[2];
+
+                vy = data[3];
+
+             /*   if (x < 10)
                 {
                     vx = -vx;
                 }
@@ -249,7 +264,7 @@ namespace DrawWPF
                 if (y > _height - 10)
                 {
                     vy = -vy;
-                }
+                }*/
 
                 Dispatcher.BeginInvoke(new Action(delegate
                 {
@@ -263,9 +278,45 @@ namespace DrawWPF
             }
         }
 
+        static string ReadMemory()
+        {
+
+            char[] message;
+
+            int size;
+
+
+
+            MemoryMappedFile sharedMemory = MemoryMappedFile.OpenExisting("MemoryFile");
+
+
+            using (MemoryMappedViewAccessor reader = sharedMemory.CreateViewAccessor(0, 4, MemoryMappedFileAccess.Read))
+            {
+                size = reader.ReadInt32(0);
+            }
+
+
+
+            using (MemoryMappedViewAccessor reader = sharedMemory.CreateViewAccessor(4, size * 2, MemoryMappedFileAccess.Read))
+            {
+
+                message = new char[size];
+                reader.ReadArray<char>(0, message, 0, size);
+            }
+
+
+            return new string(message);
+
+
+        }
+
+
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            new Thread(Draw).Start();
+
+           // sys
+
+             new Thread(Draw).Start();
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -273,7 +324,6 @@ namespace DrawWPF
             _height = canvas.Height;
 
             _width = canvas.Width;
-
         }
 
         private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
