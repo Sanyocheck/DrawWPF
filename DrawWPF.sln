@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.28010.2026
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DrawWPF", "DrawWPF\DrawWPF.csproj", "{C016B533-54D5-40E9-BDED-63EEE63E0977}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProcessServer", "ProcessServer\ProcessServer.csproj", "{1865A8D2-2068-4393-BA5C-A74B77287C74}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{C016B533-54D5-40E9-BDED-63EEE63E0977}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C016B533-54D5-40E9-BDED-63EEE63E0977}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C016B533-54D5-40E9-BDED-63EEE63E0977}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1865A8D2-2068-4393-BA5C-A74B77287C74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1865A8D2-2068-4393-BA5C-A74B77287C74}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1865A8D2-2068-4393-BA5C-A74B77287C74}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1865A8D2-2068-4393-BA5C-A74B77287C74}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

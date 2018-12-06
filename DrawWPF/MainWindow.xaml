@@ -4,10 +4,11 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DrawWPF"
-        mc:Ignorable="d" Height="447" Width="800" Loaded="Window_Loaded" PreviewKeyDown="Window_PreviewKeyDown" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen" Closed="Window_Closed">
+        mc:Ignorable="d" Height="470" Width="800" Loaded="Window_Loaded" PreviewKeyDown="Window_PreviewKeyDown" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen" Closed="Window_Closed">
     <Grid>
         <Canvas Name="canvas" HorizontalAlignment="Left" Height="327" Margin="10,10,0,0" VerticalAlignment="Top" Width="772"/>
-        <Button Content="Добавить шар" HorizontalAlignment="Left" Margin="10,358,0,0" VerticalAlignment="Top" Width="772" Click="Button_Click" Height="30"/>
+        <Button Name="buttonAddObjectInThread" Content="Добавить объект (поток)" HorizontalAlignment="Left" Margin="10,358,0,0" VerticalAlignment="Top" Width="772" Height="30" Click="buttonAddObjectInThread_Click"/>
+        <Button x:Name="buttonAddObjectInProcess" Content="Добавить объект (процесс)" HorizontalAlignment="Left" Margin="10,393,0,0" VerticalAlignment="Top" Width="772" Height="30" Click="buttonAddObjectInProcess_Click"/>
 
     </Grid>
 </Window>

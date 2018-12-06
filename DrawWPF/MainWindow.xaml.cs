@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
-using System.IO;
 using System.IO.MemoryMappedFiles;
-using System.IO.Pipes;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
@@ -10,7 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using System.Linq;
+using System.IO;
 
 namespace DrawWPF
 {
@@ -19,8 +18,8 @@ namespace DrawWPF
     /// </summary>
     public partial class MainWindow : Window
     {
-        private double _width = 0;
-        private double _height = 0;
+        private static double _width = 0; // ширина поля с фигурами
+        private static double _height = 0; // высота поля с фигурами
 
         private double Add = 0;
 
@@ -180,7 +179,7 @@ namespace DrawWPF
 
 
 
-        public MainWindow()
+        public MainWindow() // лучше не трогать XD
         {
             m_Bmh.Init();
             m_Bmh.biPlanes = 1;
@@ -194,7 +193,7 @@ namespace DrawWPF
             InitializeComponent();
         }
 
-        private void Draw()
+        private void DrawProcess() // процесс
         {
             Ellipse ellips = null;
 
@@ -236,7 +235,22 @@ namespace DrawWPF
                     Add = 0;
                 }
 
-                double[] data = ReadMemory().Split('|').Select(double.Parse).ToArray();
+                double[] data = null;
+
+                try
+                {
+                    data = ReadMemory().Split('|').Select(double.Parse).ToArray();
+                }
+
+                catch
+                {
+                    return;
+                }
+
+                if (data.Length != 4)
+                {
+                    return;
+                }
 
                 x = data[0];
 
@@ -246,7 +260,62 @@ namespace DrawWPF
 
                 vy = data[3];
 
-             /*   if (x < 10)
+
+                Dispatcher.BeginInvoke(new Action(delegate
+                {
+
+                    Canvas.SetLeft(ellips, x);
+                    Canvas.SetTop(ellips, y);
+
+                }));
+
+                Thread.Sleep(10);
+            }
+        }
+
+        private void DrawThread() // поток
+        {
+            Ellipse ellips = null;
+
+            Random random = new Random();
+
+            Dispatcher.BeginInvoke(new Action(delegate
+            {
+
+                ellips = new Ellipse();
+
+                ellips.Width = 20;
+                ellips.Height = 20;
+                Canvas.SetTop(ellips, 50);
+                Canvas.SetLeft(ellips, 50);
+                ellips.Fill = Brushes.Yellow;
+
+                canvas.Children.Add(ellips);
+
+            }));
+
+            int v = 2;
+            double x = random.Next(20, 290);
+            double y = random.Next(20, 240);
+            double a = random.Next(0, 361);
+
+            double vx = v * Math.Cos(a);
+            double vy = v * Math.Sin(a);
+
+            while (true)
+            {
+                x += vx;
+                y += vy;
+
+                if (Add != 0)
+                {
+                    x += Add;
+                    y += Add;
+
+                    Add = 0;
+                }
+
+                if (x < 10)
                 {
                     vx = -vx;
                 }
@@ -264,7 +333,7 @@ namespace DrawWPF
                 if (y > _height - 10)
                 {
                     vy = -vy;
-                }*/
+                }
 
                 Dispatcher.BeginInvoke(new Action(delegate
                 {
@@ -278,45 +347,108 @@ namespace DrawWPF
             }
         }
 
-        static string ReadMemory()
+        private static bool RunServer() // фича для удобного запуска сервера shared memory (не забываем собрать сервер)
         {
-
-            char[] message;
-
-            int size;
-
-
-
-            MemoryMappedFile sharedMemory = MemoryMappedFile.OpenExisting("MemoryFile");
-
-
-            using (MemoryMappedViewAccessor reader = sharedMemory.CreateViewAccessor(0, 4, MemoryMappedFileAccess.Read))
-            {
-                size = reader.ReadInt32(0);
-            }
-
-
-
-            using (MemoryMappedViewAccessor reader = sharedMemory.CreateViewAccessor(4, size * 2, MemoryMappedFileAccess.Read))
+            try
             {
 
-                message = new char[size];
-                reader.ReadArray<char>(0, message, 0, size);
+                if (Process.GetProcessesByName("ProcessServer").Any())
+                {
+                    return true;
+                }
+
+                string mainFolder = System.IO.Path.GetDirectoryName(System.IO.Path.GetDirectoryName(System.IO.Path.GetDirectoryName(Directory.GetCurrentDirectory())));
+
+                string buildConfiguration = "Release";
+
+#if DEBUG
+                buildConfiguration = "Debug";
+#endif
+
+                string serverExpectedPath = mainFolder + "\\ProcessServer\\bin\\" + buildConfiguration;
+
+                if (!File.Exists(serverExpectedPath + "\\" + "ProcessServer.exe"))
+                {
+                    MessageBox.Show("Не удалось найти сервер, запустите его вручную", "", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return false;
+                }
+
+                Process.Start(serverExpectedPath + "\\" + "ProcessServer.exe", _width + " " + _height);
+
+                return true;
             }
 
+            catch
+            {
+                MessageBox.Show("Не удалось найти сервер, запустите его вручную", "", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+        }
 
-            return new string(message);
+        private static string ReadMemory() // чтение shared memory
+        {
+            try
+            {
+                char[] message;
+
+                int size;
+
+                MemoryMappedFile sharedMemory = MemoryMappedFile.OpenExisting("MemoryFile");
+
+                using (MemoryMappedViewAccessor reader = sharedMemory.CreateViewAccessor(0, 4, MemoryMappedFileAccess.Read))
+                {
+                    size = reader.ReadInt32(0);
+                }
+
+                using (MemoryMappedViewAccessor reader = sharedMemory.CreateViewAccessor(4, size * 2, MemoryMappedFileAccess.Read))
+                {
+
+                    message = new char[size];
+                    reader.ReadArray(0, message, 0, size);
+                }
 
 
+                return new string(message);
+            }
+
+            catch (Exception ex)
+            {
+                MessageBox.Show("Произошла ошибка, возможно вы забыли запустить сервер\n" + ex.Message, "", MessageBoxButton.OK, MessageBoxImage.Error);
+                return null;
+            }
+        }
+
+        private void Kill()
+        {
+            try
+            {
+                if (Process.GetProcessesByName("ProcessServer").Any()) // убиваем сервер при закрытии формы
+                {
+                    Process[] serverProcess = Process.GetProcessesByName("ProcessServer");
+
+                    serverProcess[0].Kill();
+                }
+
+                Process.GetCurrentProcess().Kill(); // при использовании потоков висит в диспетчере задач, убиваем
+            }
+
+            catch { }
+        }
+
+        private void buttonAddObjectInThread_Click(object sender, RoutedEventArgs e)
+        {
+            new Thread(DrawThread).Start();
         }
 
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void buttonAddObjectInProcess_Click(object sender, RoutedEventArgs e)
         {
+            if (RunServer())
+            {
+                Thread.Sleep(100); // попробуй убери XD
 
-           // sys
-
-             new Thread(Draw).Start();
+                new Thread(DrawProcess).Start();
+            }
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -328,7 +460,7 @@ namespace DrawWPF
 
         private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.F)
+            if (e.Key == Key.F) // рандомное движение по клавише F
             {
                 Random random = new Random();
 
@@ -337,13 +469,13 @@ namespace DrawWPF
 
             else
             {
-                System.Diagnostics.Process.GetCurrentProcess().Kill();
+                Kill();
             }
         }
 
         private void Window_Closed(object sender, EventArgs e)
         {
-            System.Diagnostics.Process.GetCurrentProcess().Kill();
+            Kill();
         }
     }
 }
