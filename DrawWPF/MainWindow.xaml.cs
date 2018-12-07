@@ -195,22 +195,22 @@ namespace DrawWPF
 
         private void DrawProcess() // процесс
         {
-            Ellipse ellips = null;
+            Rectangle rectangle = null;
 
             Random random = new Random();
 
             Dispatcher.BeginInvoke(new Action(delegate
             {
 
-                ellips = new Ellipse();
+                rectangle = new Rectangle();
 
-                ellips.Width = 20;
-                ellips.Height = 20;
-                Canvas.SetTop(ellips, 50);
-                Canvas.SetLeft(ellips, 50);
-                ellips.Fill = Brushes.Yellow;
+                rectangle.Width = 20;
+                rectangle.Height = 20;
+                Canvas.SetTop(rectangle, 50);
+                Canvas.SetLeft(rectangle, 50);
+                rectangle.Fill = Brushes.Red;
 
-                canvas.Children.Add(ellips);
+                canvas.Children.Add(rectangle);
 
             }));
 
@@ -244,12 +244,12 @@ namespace DrawWPF
 
                 catch
                 {
-                    return;
+                    continue;
                 }
 
                 if (data.Length != 4)
                 {
-                    return;
+                    continue;
                 }
 
                 x = data[0];
@@ -264,8 +264,8 @@ namespace DrawWPF
                 Dispatcher.BeginInvoke(new Action(delegate
                 {
 
-                    Canvas.SetLeft(ellips, x);
-                    Canvas.SetTop(ellips, y);
+                    Canvas.SetLeft(rectangle, x);
+                    Canvas.SetTop(rectangle, y);
 
                 }));
 
@@ -275,22 +275,22 @@ namespace DrawWPF
 
         private void DrawThread() // поток
         {
-            Ellipse ellips = null;
+            Rectangle rectangle = null;
 
             Random random = new Random();
 
             Dispatcher.BeginInvoke(new Action(delegate
             {
 
-                ellips = new Ellipse();
+                rectangle = new Rectangle();
 
-                ellips.Width = 20;
-                ellips.Height = 20;
-                Canvas.SetTop(ellips, 50);
-                Canvas.SetLeft(ellips, 50);
-                ellips.Fill = Brushes.Yellow;
+                rectangle.Width = 20;
+                rectangle.Height = 20;
+                Canvas.SetTop(rectangle, 50);
+                Canvas.SetLeft(rectangle, 50);
+                rectangle.Fill = Brushes.Red;
 
-                canvas.Children.Add(ellips);
+                canvas.Children.Add(rectangle);
 
             }));
 
@@ -338,8 +338,8 @@ namespace DrawWPF
                 Dispatcher.BeginInvoke(new Action(delegate
                 {
 
-                    Canvas.SetLeft(ellips, x);
-                    Canvas.SetTop(ellips, y);
+                    Canvas.SetLeft(rectangle, x);
+                    Canvas.SetTop(rectangle, y);
 
                 }));
 
