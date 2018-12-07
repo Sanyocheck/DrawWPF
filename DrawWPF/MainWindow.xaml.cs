@@ -208,7 +208,7 @@ namespace DrawWPF
                 rectangle.Height = 20;
                 Canvas.SetTop(rectangle, 50);
                 Canvas.SetLeft(rectangle, 50);
-                rectangle.Fill = Brushes.Red;
+                rectangle.Fill = Brushes.Blue;
 
                 canvas.Children.Add(rectangle);
 
@@ -226,14 +226,6 @@ namespace DrawWPF
             {
                 x += vx;
                 y += vy;
-
-                if (Add != 0)
-                {
-                    x += Add;
-                    y += Add;
-
-                    Add = 0;
-                }
 
                 double[] data = null;
 
@@ -259,6 +251,17 @@ namespace DrawWPF
                 vx = data[2];
 
                 vy = data[3];
+
+                if (Add != 0)
+                {
+                    x += Add;
+                    y += Add;
+
+                    Add = 0;
+
+                    Thread.Sleep(10);
+
+                }
 
 
                 Dispatcher.BeginInvoke(new Action(delegate
@@ -307,14 +310,6 @@ namespace DrawWPF
                 x += vx;
                 y += vy;
 
-                if (Add != 0)
-                {
-                    x += Add;
-                    y += Add;
-
-                    Add = 0;
-                }
-
                 if (x < 10)
                 {
                     vx = -vx;
@@ -333,6 +328,16 @@ namespace DrawWPF
                 if (y > _height - 10)
                 {
                     vy = -vy;
+                }
+
+                if (Add != 0)
+                {
+                    x += Add;
+                    y += Add;
+
+                    Add = 0;
+
+                    Thread.Sleep(10);
                 }
 
                 Dispatcher.BeginInvoke(new Action(delegate
@@ -365,15 +370,15 @@ namespace DrawWPF
                 buildConfiguration = "Debug";
 #endif
 
-                string serverExpectedPath = mainFolder + "\\ProcessServer\\bin\\" + buildConfiguration;
+                string serverExpectedPath = mainFolder + "\\ProcessServer\\bin\\" + buildConfiguration + "\\ProcessServer.exe";
 
-                if (!File.Exists(serverExpectedPath + "\\" + "ProcessServer.exe"))
+                if (!File.Exists(serverExpectedPath))
                 {
                     MessageBox.Show("Не удалось найти сервер, запустите его вручную", "", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return false;
                 }
 
-                Process.Start(serverExpectedPath + "\\" + "ProcessServer.exe", _width + " " + _height);
+                Process.Start(serverExpectedPath, _width + " " + _height);
 
                 return true;
             }
